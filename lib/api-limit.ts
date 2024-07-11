@@ -1,10 +1,33 @@
-import { auth } from "@clerk/nextjs/server";
-
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 import prismadb from "@/lib/prismadb";
 import { MAX_FREE_COUNTS } from "@/constants";
 
+const getUserId = async () => {
+  const cookieStore = cookies();
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+      },
+    }
+  );
+
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error) {
+    console.error('Error getting user:', error);
+    return null;
+  }
+  return user ? user.id : null;
+};
+
 export const incrementApiLimit = async () => {
-  const { userId } = auth();
+  const userId = await getUserId();
 
   if (!userId) {
     return;
@@ -27,7 +50,7 @@ export const incrementApiLimit = async () => {
 };
 
 export const checkApiLimit = async () => {
-  const { userId } = auth();
+  const userId = await getUserId();
 
   if (!userId) {
     return false;
@@ -45,7 +68,7 @@ export const checkApiLimit = async () => {
 };
 
 export const getApiLimitCount = async () => {
-  const { userId } = auth();
+  const userId = await getUserId();
 
   if (!userId) {
     return 0;

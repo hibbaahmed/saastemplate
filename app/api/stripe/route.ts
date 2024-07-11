@@ -1,4 +1,5 @@
-import { auth, currentUser } from "@clerk/nextjs";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 import prismadb from "@/lib/prismadb";
@@ -7,18 +8,40 @@ import { absoluteUrl } from "@/lib/utils";
 
 const settingsUrl = absoluteUrl("/settings");
 
+const getSupabaseUser = async () => {
+  const cookieStore = cookies();
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+      },
+    }
+  );
+
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error) {
+    console.error('Error getting user:', error);
+    return null;
+  }
+  return user
+};
+
 export async function GET() {
   try {
-    const { userId } = auth();
-    const user = await currentUser();
+    const user = await getSupabaseUser();
 
-    if (!userId || !user) {
+    if (!user) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
     const userSubscription = await prismadb.userSubscription.findUnique({
       where: {
-        userId,
+        userId: user.id,
       },
     });
 
@@ -55,7 +78,7 @@ export async function GET() {
         },
       ],
       metadata: {
-        userId,
+        userId: user.id,
       },
     });
 

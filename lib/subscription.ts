@@ -1,19 +1,43 @@
-import { auth } from "@clerk/nextjs/server";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 
 import prismadb from "@/lib/prismadb";
 
 const DAY_IN_MS = 86_400_000;
 
-export const checkSubscription = async () => {
-  const { userId } = auth();
+const getSupabaseUser = async () => {
+  const cookieStore = cookies();
 
-  if (!userId) {
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+      },
+    }
+  );
+
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error) {
+    console.error('Error getting user:', error);
+    return null;
+  }
+  return user;
+};
+
+export const checkSubscription = async () => {
+  const user = await getSupabaseUser();
+
+  if (!user) {
     return false;
   }
 
   const userSubscription = await prismadb.userSubscription.findUnique({
     where: {
-      userId: userId,
+      userId: user.id,
     },
     select: {
       stripeSubscriptionId: true,
