@@ -11,14 +11,14 @@ import OpenAI from "openai";
 import ReactMarkdown from "react-markdown";
 
 import Heading from "@/components/heading";
-import { BotAvatar } from "@/components/bot-avatar";
+// import { BotAvatar } from "@/components/bot-avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
 import { Loader } from "@/components/loader";
-import { UserAvatar } from "@/components/user-avatar";
+// import { UserAvatar } from "@/components/user-avatar";
 import { Empty } from "@/components/empty";
 import { useProModal } from "@/hooks/use-pro-modal";
 
@@ -136,7 +136,7 @@ const CodePage = () => {
                     : "bg-muted"
                 )}
               >
-                {message.role === "user" ? <UserAvatar /> : <BotAvatar />}
+                {/* {message.role === "user" ? <UserAvatar /> : <BotAvatar />} */}
                 <ReactMarkdown
                   components={{
                     pre: ({ node, ...props }) => (

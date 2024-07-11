@@ -19,8 +19,8 @@ import { formSchema } from "./constants";
 import { Empty } from "@/components/empty";
 import { Loader } from "@/components/loader";
 import { cn } from "@/lib/utils";
-import { UserAvatar } from "@/components/user-avatar";
-import { BotAvatar } from "@/components/bot-avatar";
+// import { UserAvatar } from "@/components/user-avatar";
+// import { BotAvatar } from "@/components/bot-avatar";
 import { useProModal } from "@/hooks/use-pro-modal";
 
 export default function ConversationPage() {
@@ -139,7 +139,7 @@ export default function ConversationPage() {
                     : "bg-muted"
                 )}
               >
-                {message.role === "user" ? <UserAvatar /> : <BotAvatar />}
+                {/* {message.role === "user" ? <UserAvatar /> : <BotAvatar />} */}
 
                 <p className="text-sm">{message.content as string}</p>
               </div>
